@@ -1,0 +1,93 @@
+
+Comment @
+
+Program:    File_of_Fibonacci_Numbers.asm
+Student:     Bryan Oliande
+Date Due:        02/26/15
+Class:       CSCI 241
+Instructor:  Mr. Ding
+Description: Using Programming Exercise 6 in Chapter 4 as a starting point,
+write a program that generates the first 47 values in the Fibonacci
+series, stores them in an array of doublewords, and writes the
+doubleword array to a disk file.
+
+@
+
+INCLUDE Irvine32.inc
+
+FIB_COUNT = 47; number of values to generate
+
+.data
+fileHandle DWORD ?
+filename BYTE "fibonacci.bin", 0
+array DWORD FIB_COUNT DUP(? )
+
+.code
+main2sub PROC
+
+; Generate the array of values
+
+	mov esi,OFFSET array
+	mov ecx,47
+	call	generate_fibonacci
+
+; Create the file, call CreateOutputFile
+	 mov  edx,OFFSET filename
+     call CreateOutputFile
+     mov  fileHandle, EAX
+
+
+; Write the array to the file, call WriteToFile
+	 mov  eax,fileHandle
+     mov  edx,OFFSET array
+     mov  ecx,188	;max # of bytes (4 * 47 = 188) to write
+     call WriteToFile
+
+
+
+
+; Close the file, call CloseFile
+	  mov  eax,fileHandle
+      call CloseFile
+
+
+exit
+main2sub ENDP
+
+; ------------------------------------------------------------
+generate_fibonacci PROC USES eax ebx ecx edx
+;
+; Generates fibonacci values and stores in an array.
+; Receives: ESI points to the array,
+;           ECX = count
+; Returns: nothing
+; ------------------------------------------------------------
+	;sets up the loop and registers by making array hold the first two fibonacci numbers
+	sub ecx,2
+	mov DWORD PTR [esi],1
+	inc esi
+	mov DWORD PTR [esi],1
+	inc esi
+	mov ebx,1
+	mov edx,1
+	mov eax,1
+	call WriteDec
+	call Crlf
+	call WriteDec
+	call Crlf
+
+	L1:								
+	add eax,edx
+ 	mov edx,ebx
+	mov ebx,eax
+	mov [esi],eax
+	call WriteDec
+	call Crlf
+	inc esi
+	loop L1							;repeat until ECX = 0
+
+
+ret
+generate_fibonacci ENDP
+
+END main2sub
